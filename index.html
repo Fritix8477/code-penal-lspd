@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Code pénal LSPD – Consultation</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --text: #eaf0ff;
+      --muted: rgba(234,240,255,.74);
+      --muted2: rgba(234,240,255,.55);
+      --brand: #4aa3ff;
+      --ok: #35d07f;
+      --danger: #ff5b7a;
+      --shadow: 0 12px 34px rgba(0,0,0,.40);
+      --radius: 18px;
+      --border: 1px solid rgba(255,255,255,.10);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color: var(--text);
+      background: radial-gradient(1200px 700px at 20% -10%, rgba(74,163,255,.25), transparent 60%),
+                  radial-gradient(900px 600px at 100% 10%, rgba(53,208,127,.14), transparent 55%),
+                  var(--bg);
+      min-height: 100vh;
+    }
+    .wrap { max-width: 1320px; margin: 0 auto; padding: 22px 14px 46px; }
+    header { display: flex; gap: 14px; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; margin-bottom: 14px; }
+    .title { display:flex; flex-direction:column; gap:6px; }
+    h1 { margin: 0; font-size: clamp(22px, 3.2vw, 34px); letter-spacing: .2px; line-height: 1.05; }
+    .subtitle { color: var(--muted); font-size: 13px; line-height: 1.35; max-width: 88ch; }
+    .chip { display:inline-flex; align-items:center; gap:8px; padding: 8px 12px; border-radius: 999px;
+      background: rgba(74,163,255,.10); border: 1px solid rgba(74,163,255,.25); color: var(--text); font-size: 12px; white-space: nowrap; }
+
+    .grid { display: grid; gap: 12px; grid-template-columns: 1.2fr .8fr; align-items:start; }
+    @media (max-width: 980px) { .grid { grid-template-columns: 1fr; } }
+
+    .card { background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.05));
+      border: var(--border); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+    .card .body { padding: 14px; }
+
+    /* Sticky right panel on desktop */
+    .sticky {
+      position: sticky;
+      top: 12px;
+    }
+    @media (max-width: 980px) {
+      .sticky { position: static; }
+    }
+
+    .controls { display: grid; grid-template-columns: 1.5fr .8fr .8fr .75fr; gap: 10px; }
+    @media (max-width: 920px) { .controls { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 520px) { .controls { grid-template-columns: 1fr; } }
+
+    label { display:block; font-size: 12px; color: var(--muted); margin: 0 0 6px; }
+    input, select, button, textarea {
+      width: 100%; padding: 11px 12px; border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.14); background: rgba(0,0,0,.25); color: var(--text); outline: none;
+    }
+    input::placeholder { color: rgba(234,240,255,.45); }
+    input:focus, select:focus, textarea:focus { border-color: rgba(74,163,255,.55); box-shadow: 0 0 0 4px rgba(74,163,255,.15); }
+    textarea { min-height: 160px; resize: vertical; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    .btnrow { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .btn { cursor:pointer; border: 1px solid rgba(255,255,255,.16); background: rgba(255,255,255,.08);
+      transition: transform .06s ease, background .2s ease, border-color .2s ease; font-weight: 800; }
+    .btn:hover { background: rgba(255,255,255,.11); border-color: rgba(255,255,255,.22); }
+    .btn:active { transform: translateY(1px); }
+    .btn.primary { background: rgba(74,163,255,.18); border-color: rgba(74,163,255,.35); }
+    .btn.primary:hover { background: rgba(74,163,255,.24); border-color: rgba(74,163,255,.50); }
+    .btn.danger { background: rgba(255,91,122,.14); border-color: rgba(255,91,122,.35); }
+    .btn.danger:hover { background: rgba(255,91,122,.20); border-color: rgba(255,91,122,.55); }
+
+    .pillhint {
+      display:inline-flex; align-items:center; gap:10px; padding: 8px 10px; border-radius: 12px;
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.10);
+      color: var(--muted); font-size: 12px; line-height: 1.35;
+    }
+    .pillhint b { color: rgba(234,240,255,.92); }
+
+    .divider { height:1px; background: rgba(255,255,255,.10); margin: 12px 0; }
+
+    /* Table responsiveness */
+    .tablewrap { max-height: 70vh; overflow: auto; margin-top: 12px; border-radius: 14px; }
+    table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; min-width: 860px; }
+    thead th {
+      position: sticky; top: 0; background: rgba(11,16,32,.92); backdrop-filter: blur(8px); z-index: 2;
+      text-align: left; padding: 12px 12px; border-bottom: 1px solid rgba(255,255,255,.12);
+      color: rgba(234,240,255,.88); font-size: 12px; letter-spacing: .25px; text-transform: uppercase;
+    }
+    tbody td { padding: 12px 12px; border-bottom: 1px solid rgba(255,255,255,.07); vertical-align: top; }
+    tbody tr:hover td { background: rgba(255,255,255,.035); }
+    @media (max-width: 980px) {
+      .tablewrap { max-height: 62vh; }
+      table { min-width: 780px; }
+    }
+    @media (max-width: 520px) {
+      .tablewrap { max-height: 58vh; }
+      table { min-width: 720px; }
+    }
+
+    .badge { display:inline-flex; align-items:center; padding: 6px 10px; border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.06); font-size: 12px; font-weight: 900; white-space: nowrap; }
+    .badge.type { border-color: rgba(74,163,255,.35); background: rgba(74,163,255,.12); }
+    .badge.cat { border-color: rgba(53,208,127,.28); background: rgba(53,208,127,.10); }
+
+    .money { font-weight: 950; }
+    .muted { color: var(--muted); }
+    .muted2 { color: var(--muted2); }
+    .small { font-size: 12px; }
+    .clickable { cursor: pointer; }
+    .rowSelected td { background: rgba(53,208,127,.10) !important; }
+
+    .stats { display:grid; gap: 10px; grid-template-columns: 1fr 1fr; }
+    .stat { padding: 12px; border-radius: 14px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.10); }
+    .stat .k { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+    .stat .v { font-size: 18px; font-weight: 950; }
+
+    .list { margin-top: 10px; display:flex; flex-direction:column; gap:8px; max-height: 260px; overflow:auto; padding-right: 2px; }
+    @media (max-width: 980px) { .list { max-height: 220px; } }
+    @media (max-width: 520px) { .list { max-height: 190px; } }
+
+    .item {
+      display:flex; gap:10px; align-items:flex-start; justify-content:space-between;
+      padding: 10px 12px; border-radius: 14px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.10);
+    }
+    .item .left { display:flex; flex-direction:column; gap:4px; }
+    .item .name { font-weight: 950; line-height:1.25; }
+    .item .meta { color: var(--muted); font-size: 12px; }
+
+    .qty { display:flex; gap:8px; align-items:center; }
+    .qty button { width:auto; padding: 8px 10px; border-radius: 10px; }
+    .qty .n { min-width: 22px; text-align:center; font-weight: 950; }
+
+    .reportHeader {
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 6px;
+    }
+    @media (max-width: 520px) { .reportHeader { grid-template-columns: 1fr; } }
+
+    .segTitle { font-size: 12px; color: var(--muted); margin: 6px 0 8px; text-transform: uppercase; letter-spacing: .2px; }
+    .toggleRow { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .toggleRow .btn { width:auto; }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      padding: 2px 6px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.07);
+      color: rgba(234,240,255,.90);
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="title">
+        <h1>Code pénal LSPD</h1>
+        <div class="subtitle">
+          ✅ Clique sur une infraction pour l’ajouter au calcul. <span class="muted2">(Clique l’amende = pareil)</span><br/>
+          <span class="kbd">SHIFT</span> + clic = enlève 1 • Les filtres restent partageables via le lien.
+        </div>
+      </div>
+      <div class="chip" id="chip">Données chargées</div>
+    </header>
+
+    <div class="grid">
+      <div class="card">
+        <div class="body">
+          <div class="controls">
+            <div>
+              <label for="q">Recherche</label>
+              <input id="q" type="search" placeholder="Ex: excès de vitesse, stupéfiants, fourrière…" />
+            </div>
+            <div>
+              <label for="type">Type</label>
+              <select id="type"></select>
+            </div>
+            <div>
+              <label for="categorie">Catégorie</label>
+              <select id="categorie"></select>
+            </div>
+            <div>
+              <label for="sort">Trier</label>
+              <select id="sort">
+                <option value="default">Par défaut</option>
+                <option value="amende_desc">Amende (↓)</option>
+                <option value="amende_asc">Amende (↑)</option>
+                <option value="peine_desc">Peine (↓)</option>
+                <option value="peine_asc">Peine (↑)</option>
+                <option value="az">Infraction (A→Z)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="btnrow" style="margin-top:12px;">
+            <button class="btn primary" id="resetFilters">Réinitialiser filtres</button>
+            <button class="btn" id="copyLink">Copier lien (filtres)</button>
+            <div class="pillhint" style="margin-left:auto;">
+              <span id="count">—</span>
+              <span>•</span>
+              <span>Astuce : <b>CTRL</b> + molette = zoom navigateur 😄</span>
+            </div>
+          </div>
+
+          <div class="tablewrap">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:92px;">Cat.</th>
+                  <th style="width:170px;">Type</th>
+                  <th>Infraction</th>
+                  <th style="width:130px;">Amende</th>
+                  <th style="width:220px;">Suppléments</th>
+                  <th style="width:110px;">Peine</th>
+                </tr>
+              </thead>
+              <tbody id="tbody"></tbody>
+            </table>
+          </div>
+
+          <div class="divider"></div>
+          <div class="muted small">
+            💡 Sur mobile : tu peux scroller horizontalement dans le tableau.
+          </div>
+        </div>
+      </div>
+
+      <div class="card sticky">
+        <div class="body">
+          <div class="stats">
+            <div class="stat">
+              <div class="k">Infractions (sélection)</div>
+              <div class="v" id="selCount">0</div>
+            </div>
+            <div class="stat">
+              <div class="k">Total amende</div>
+              <div class="v" id="totalAmende">0 $</div>
+            </div>
+            <div class="stat">
+              <div class="k">Total peine</div>
+              <div class="v"><span id="totalPeine">0</span> <span class="muted2">min</span></div>
+            </div>
+            <div class="stat">
+              <div class="k">Total lignes (Excel)</div>
+              <div class="v" id="totalRows">—</div>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="btnrow">
+            <button class="btn danger" id="clearSelection">Vider sélection</button>
+            <button class="btn primary" id="copyReport">Copier rapport</button>
+          </div>
+
+          <div class="segTitle">Sélection</div>
+          <div class="list" id="selectionList"></div>
+
+          <div class="divider"></div>
+
+          <div class="segTitle">Infos (optionnel)</div>
+          <div class="reportHeader">
+            <div>
+              <label for="suspect">Suspect / ID</label>
+              <input id="suspect" placeholder="Ex: John Doe (ID 24)" />
+            </div>
+            <div>
+              <label for="officer">Officier</label>
+              <input id="officer" placeholder="Ex: Mat. 128 - Fritix" />
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="toggleRow" style="margin-bottom: 8px;">
+            <span class="segTitle" style="margin:0;">Format</span>
+            <button class="btn" id="fmtPlain" type="button">Texte</button>
+            <button class="btn" id="fmtDiscord" type="button">Discord</button>
+          </div>
+
+          <label for="report">Rapport</label>
+          <textarea id="report" readonly></textarea>
+
+          <div class="muted small" style="margin-top:10px;">
+            Le rapport inclut : date/heure, suspect/officier (si remplis), liste + quantités, totaux (amende/peine) + suppléments regroupés.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+const DATA = [{"categorie": 1, "type": "CONTRAVENTION", "infraction": "ATTERRISSAGE D'UN AVION OU HELICOPTERE SUR UN SITE INAPPROPRIE A SON UTILISATION", "amende": "2 000$", "amende_value": 2000.0, "supplements": "MISE EN FOURRIERE", "peine": "0", "peine_value": 0.0}, {"categorie": 1, "type": "CONTRAVENTION", "infraction": "SURVOL D'UN AVION OU HELICOPTERE SUR UN SITE SECURISE", "amende": "5 000$", "amende_value": 5000.0, "supplements": "NEUTRALISATION DE L'APPAREIL", "peine": "0", "peine_value": 0.0}, {"categorie": 1, "type": "CONTRAVENTION", "infraction": "ATTEINTE A LA PUDEUR", "amende": "250$", "amende_value": 250.0, "supplements": "-", "peine": "10", "peine_value": 10.0}, {"categorie": 1, "type": "CONTRAVENTION", "infraction": "CONDUITE DANGEUREUSE (DRIFT, WHEELING,,,,)", "amende": "250$", "amende_value": 250.0, "supplements": "AU DELA DE 50KM/H DE LA VITESSE ET MISE NE FOURRIERE 48H", "peine": "0", "peine_value": 0.0}, {"categorie": 1, "type": "CONTRAVENTION", "infraction": "CONDUITE EN CONTRE SENS", "amende": "250$", "amende_value": 250.0, "supplements": "-", "peine": "0", "peine_value": 0.0}, {"categorie": 1, "type": "CONTRAVENTION", "infraction": "DISSIMULATION DU VISAGE", "amende": "500$", "amende_value": 500.0, "supplements": "PALPATION DE L'INDIVIDU", "peine": "0", "peine_value": 0.0}, {"categorie": 1, "type": "CONTRAVENTION", "infraction": "EXCES DE VITESSE", "amende": "250$", "amende_value": 250.0, "supplements": "-", "peine": "0", "peine_value": 0.0}, {"categorie": 1, "type": "CONTRAVENTION", "infraction": "HOLSTER INTERDIT", "amende": "500$", "amende_value": 500.0, "supplements": "PALPATION DE L'INDIVIDU", "peine": "0", "peine_value": 0.0}, {"categorie": 1, "type": "CONTRAVENTION", "infraction": "CONDUITE SUR LES TROTTOIRS", "amende": "250$", "amende_value": 250.0, "supplements": "MISE EN FOURRIERE", "peine": "0", "peine_value": 0.0}, {"categorie": 1, "type": "CONTRAVENTION", "infraction": "IVRESSE OU CONSOMMATION DE STUPEFIANTS SUR LA VOIE PUBLIQUE", "amende": "500$", "amende_value": 500.0, "supplements": "-", "peine": "0", "peine_value": 0.0}, {"categorie": 1, "type": "CONTRAVENTION", "infraction": "NON PRESENTATION DES PAPIERS D'IDENTITE / NON POSSESSION DES PAPIERS D'IDENTITE", "amende": "500$", "amende_value": 500.0, "supplements": "OBLIGATION DE SE PRESENTER DANS LES 24H AVEC LES PAPIERS REQUIS", "peine": "0", "peine_value": 0.0}, {"categorie": 1, "type": "CONTRAVENTION", "infraction": "STATIONNEMENT GENANT /STATIONNEMENT INTERDIT", "amende": "250$", "amende_value": 250.0, "supplements": "MISE EN FOURRIERE", "peine": "0", "peine_value": 0.0}, {"categorie": 1, "type": "CONTRAVENTION", "infraction": "USAGE ABUSIF DU KLAXON", "amende": "100$", "amende_value": 100.0, "supplements": "MISE EN FOURRIERE", "peine": "0", "peine_value": 0.0}, {"categorie": 1, "type": "CONTRAVENTION", "infraction": "VEHICULE DEGRADE", "amende": "500$", "amende_value": 500.0, "supplements": "-", "peine": "0", "peine_value": 0.0}, {"categorie": 1, "type": "CONTRAVENTION", "infraction": "CONDUITE SANS PERMIS", "amende": "1 000$", "amende_value": 1000.0, "supplements": "MISE EN FOURRIERE", "peine": "0", "peine_value": 0.0}, {"categorie": 1, "type": "CONTRAVENTION", "infraction": "MENDICITE EN LIEU PUBLIC", "amende": "250$", "amende_value": 250.0, "supplements": "-", "peine": "0", "peine_value": 0.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "FAUX APPELS (CANULARS)", "amende": "500$", "amende_value": 500.0, "supplements": "-", "peine": "5", "peine_value": 5.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "PROVOCATION POLICIERE", "amende": "1500$", "amende_value": 1500.0, "supplements": "MISE EN FOURRIERE", "peine": "10", "peine_value": 10.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "PRESENCE PIETONNE SUR AUTOROUTE", "amende": "500$", "amende_value": 500.0, "supplements": "-", "peine": "0", "peine_value": 0.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "AGRESSION SUR CITOYEN", "amende": "1 500$", "amende_value": 1500.0, "supplements": "-", "peine": "10", "peine_value": 10.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "PROPOS RACISTE / HOMOPHOBE / SEXISTE", "amende": "4 500$", "amende_value": 4500.0, "supplements": "SI RECIDIVE GARDE A VUE DE 15MIN", "peine": "0", "peine_value": 0.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "OUTRAGE A FONCTIONNAIRE DES SERVICES PUBLICS (EMS, F,D,O, GOUVERNEMENT...)", "amende": "1 500$", "amende_value": 1500.0, "supplements": "-", "peine": "10", "peine_value": 10.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "APPEL ABUSIF SERVICES PUBLICS", "amende": "500$", "amende_value": 500.0, "supplements": "-", "peine": "5", "peine_value": 5.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "BRAQUAGE DE SUPERETTE", "amende": "7 000$", "amende_value": 7000.0, "supplements": "SAISIE ARME / ARGENT", "peine": "20", "peine_value": 20.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "CIRCULATION AVEC UN VEHICULE NON HOMOLOGUE", "amende": "1 000$", "amende_value": 1000.0, "supplements": "MISE EN FOURRIERE", "peine": "0", "peine_value": 0.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "POSSESSION ARGENT LIQUIDE + DE 10 000$", "amende": "0$", "amende_value": 0.0, "supplements": "RETRAIT DE L'ARGENT EN SURPLUS", "peine": "0", "peine_value": 0.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "CONDUITE D'UN VEHICULE VOLE", "amende": "1 500$", "amende_value": 1500.0, "supplements": "MISE EN FOURRIERE", "peine": "10", "peine_value": 10.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "COURSE DE RUE ILLEGALE", "amende": "500$", "amende_value": 500.0, "supplements": "MISE EN FOURRIERE DE TOUS LES VEHICULES", "peine": "10", "peine_value": 10.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "DEGRADATION DE BIENS PRIVES", "amende": "1 000$", "amende_value": 1000.0, "supplements": "-", "peine": "0", "peine_value": 0.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "DEGRADATION DE BIENS PUBLICS", "amende": "2 500$", "amende_value": 2500.0, "supplements": "-", "peine": "5", "peine_value": 5.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "DELIT DE FUITE", "amende": "3 500$", "amende_value": 3500.0, "supplements": "MISE NE FOURRIERE", "peine": "10", "peine_value": 10.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "ENTRAVE A UNE OPERATION DE POLICE", "amende": "2 500$", "amende_value": 2500.0, "supplements": "SI RECIDIVE ALORS PEINE 15 MIN EN GARDE A VUE", "peine": "0", "peine_value": 0.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "POSSESSION GILET PAR BALLE", "amende": "1 000$", "amende_value": 1000.0, "supplements": "SAISIE DE L'EQUIPEMENT", "peine": "0", "peine_value": 0.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "EXHIBITION D'ARME BLANCHE", "amende": "2 500$", "amende_value": 2500.0, "supplements": "CONFISCATION DE L'ARME", "peine": "0", "peine_value": 0.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "EXHIBITION D'ARME DE POING", "amende": "5 000$", "amende_value": 5000.0, "supplements": "SAISIE DE L'ARME", "peine": "10", "peine_value": 10.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "EXHIBITION D'ARME LOURDE", "amende": "10 000$", "amende_value": 10000.0, "supplements": "SAISIE DE L'ARME", "peine": "20", "peine_value": 20.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "PORT D'ARME SANS PPA", "amende": "5 000$", "amende_value": 5000.0, "supplements": "SAISIE DE L'ARME", "peine": "5", "peine_value": 5.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "GO FAST", "amende": "7 000$", "amende_value": 7000.0, "supplements": "MISE EN FOURRIERE DU VEHICULE + SAISIE DROGUE", "peine": "20", "peine_value": 20.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "MANIFESTATION ILLEGALE", "amende": "1 000$", "amende_value": 1000.0, "supplements": "-", "peine": "5", "peine_value": 5.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "INTRUSION DANS UN BATIMENT OFFICIEL DE L'ETAT", "amende": "20 000$", "amende_value": 20000.0, "supplements": "-", "peine": "25", "peine_value": 25.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "USURPATION D'IDENTITE", "amende": "2 000$", "amende_value": 2000.0, "supplements": "SAISIE DES DOCUMENTS", "peine": "5", "peine_value": 5.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "MISE EN DANGER DE LA VIE D'AUTRUI", "amende": "2 500$", "amende_value": 2500.0, "supplements": "-", "peine": "10", "peine_value": 10.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "NON ASSISTANCE A PERSONNE EN DANGER", "amende": "2 500$", "amende_value": 2500.0, "supplements": "-", "peine": "10", "peine_value": 10.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "NON PRESENTATION A UNE CONVOCATION DE POLICE", "amende": "10 000$", "amende_value": 10000.0, "supplements": "AMENDE DOUBLEE SI RECIDIVE / AVIS DE RECHERCHE", "peine": "15", "peine_value": 15.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "POSSESSION IMPORTANTE DE MUNITIONS", "amende": "50$ / munition", "amende_value": 50.0, "supplements": "LEGAL: 100 MAX TOUTES MUNITIONS CONFONDUES", "peine": "0", "peine_value": 0.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "TRAFIC DE STUPEFIANT", "amende": "7 000$", "amende_value": 7000.0, "supplements": "SUPERIEUR A 30 POCHONS", "peine": "25", "peine_value": 25.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "POSSESSION DE CANABIS (+DE 5)", "amende": "50$ / pochon", "amende_value": 50.0, "supplements": "SAISIE + INTERROGATOIRE", "peine": "10", "peine_value": 10.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "POSSESSION DE COCAINE (PAR 10)", "amende": "750$ / pochon", "amende_value": 750.0, "supplements": "SAISIE + INTERROGATOIRE", "peine": "10", "peine_value": 10.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "POSSESSION D'ECSTASY (PAR10)", "amende": "100$ / pochon", "amende_value": 100.0, "supplements": "SAISIE + INTERROGATOIRE", "peine": "10", "peine_value": 10.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "VENTE DE DROGUE", "amende": "7 000$", "amende_value": 7000.0, "supplements": "SAISIE DROGUE + ARGENT", "peine": "20", "peine_value": 20.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "POSSESSION OU PRISE EN FLAGRANT DELIT DE CROCHETAGE", "amende": "2 500$", "amende_value": 2500.0, "supplements": "CONFISCATION DES OUTILS DE CROCHETAGE", "peine": "15", "peine_value": 15.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "REFUS D'OBTEMPERER", "amende": "2 500$", "amende_value": 2500.0, "supplements": "MISE EN FOURRIERE", "peine": "15", "peine_value": 15.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "TROUBLES A L'ORDRE PUBLIC", "amende": "2 500$", "amende_value": 2500.0, "supplements": "-", "peine": "5", "peine_value": 5.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "USURPATION DE FONCTION", "amende": "7 000$", "amende_value": 7000.0, "supplements": "SAISIE DES DOCUMENTS", "peine": "15", "peine_value": 15.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "VIOLATION DE PROPRIETE PRIVEE (ENTREPRISE, LOGEMENT...)", "amende": "3 000$", "amende_value": 3000.0, "supplements": "-", "peine": "20", "peine_value": 20.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "FACTURE IMPAYEE (APRES 2 SEMAINES)", "amende": "0$", "amende_value": 0.0, "supplements": "30% DU MONTANT DE LA FACTURE DE +", "peine": "0", "peine_value": 0.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "VOL", "amende": "1 250$", "amende_value": 1250.0, "supplements": "RESTITUTION", "peine": "10", "peine_value": 10.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "VOL DE VEHICULE ENTREPRISE", "amende": "2 500$", "amende_value": 2500.0, "supplements": "RESTITUTION", "peine": "15", "peine_value": 15.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "VOL DE VEHICULE SERVICES PUBLICS", "amende": "7 500$", "amende_value": 7500.0, "supplements": "RESTITUTION", "peine": "20", "peine_value": 20.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "VOL DE VEHICULE", "amende": "2 000$", "amende_value": 2000.0, "supplements": "RESTITUTION", "peine": "15", "peine_value": 15.0}, {"categorie": 2, "type": "DELIT MINEUR", "infraction": "VENTE D'OBJET ILLEGAUX", "amende": "0$", "amende_value": 0.0, "supplements": "DEPEND DE LA VALEUR DE L'OBJET VENDU ( 125% DE CELLE CI )", "peine": "15", "peine_value": 15.0}, {"categorie": 3, "type": "DELIT MAJEUR", "infraction": "POSSESION D'UN LABORATOIRE DE DROGUE", "amende": "30 000$", "amende_value": 30000.0, "supplements": "DESTRUCTION DU LABORATOIRE", "peine": "JUGEMENT", "peine_value": NaN}, {"categorie": 3, "type": "DELIT MAJEUR", "infraction": "CONVOIE DE DROGUE", "amende": "10 000$", "amende_value": 10000.0, "supplements": "SAISIE DE LA DROGUE", "peine": "JUGEMENT", "peine_value": NaN}, {"categorie": 3, "type": "DELIT MAJEUR", "infraction": "ATTAQUE DE CONVOIE DE TRANSPORT DE FOND", "amende": "20 000$", "amende_value": 20000.0, "supplements": "SASIE DE L'ARGENT", "peine": "JUGEMENT", "peine_value": NaN}, {"categorie": 3, "type": "DELIT MAJEUR", "infraction": "CONVOIE D'ARMES", "amende": "20 000$", "amende_value": 20000.0, "supplements": "SAISIE DES ARMES", "peine": "JUGEMENT", "peine_value": NaN}, {"categorie": 3, "type": "DELIT MAJEUR", "infraction": "DISCRIMINATION", "amende": "1 000$", "amende_value": 1000.0, "supplements": "DEPEND DE L'ETAT DE LA VICTIME", "peine": "15", "peine_value": 15.0}, {"categorie": 3, "type": "DELIT MAJEUR", "infraction": "CHANTAGE", "amende": "1 000$", "amende_value": 1000.0, "supplements": "-", "peine": "15", "peine_value": 15.0}, {"categorie": 3, "type": "DELIT MAJEUR", "infraction": "AGRESSION SUR AGENT (EMPLOYE D'ETAT OU POLICE)", "amende": "20 000$", "amende_value": 20000.0, "supplements": "SASIE ARME", "peine": "20", "peine_value": 20.0}, {"categorie": 3, "type": "DELIT MAJEUR", "infraction": "MENACE DE MORT ET / OU MENACE GRAVE", "amende": "7 000$", "amende_value": 7000.0, "supplements": "-", "peine": "15", "peine_value": 15.0}, {"categorie": 3, "type": "DELIT MAJEUR", "infraction": "HARCELEMENT", "amende": "2500$", "amende_value": 2500.0, "supplements": "DEPEND DE L'ETAT DE LA VICTIME", "peine": "15", "peine_value": 15.0}, {"categorie": 3, "type": "DELIT MAJEUR", "infraction": "HOMICIDE VOLONTAIRE (MORT RP)", "amende": "30 000$", "amende_value": 30000.0, "supplements": "SAISIE ARME + RETRAIT PPA", "peine": "JUGEMENT", "peine_value": NaN}, {"categorie": 3, "type": "DELIT MAJEUR", "infraction": "ASSOCIATION DE MALFAITEURS", "amende": "10 000$ / PERSONNE", "amende_value": 10000.0, "supplements": "PEUT AUGMENTER SELON LES ACTES DE L'ASSOCIATION", "peine": "JUGEMENT", "peine_value": NaN}, {"categorie": 3, "type": "DELIT MAJEUR", "infraction": "BRAQUAGE DE BIJOUTERIE", "amende": "30 000$", "amende_value": 30000.0, "supplements": "SAISIE ARME + MUNITIONS + ARGENT", "peine": "20", "peine_value": 20.0}, {"categorie": 3, "type": "DELIT MAJEUR", "infraction": "BRAQUAGE DE BANQUE CENTRALE (PACIFIQUE BANQUE)", "amende": "50 000$", "amende_value": 50000.0, "supplements": "SAISIE ARME + MUNITIONS + ARGENT", "peine": "JUGEMENT + FEDERAL", "peine_value": NaN}, {"categorie": 3, "type": "DELIT MAJEUR", "infraction": "BRAQUAGE FLEECA", "amende": "20 000$", "amende_value": 20000.0, "supplements": "SASIE ARME + MUNITIONS + ARGENT", "peine": "20", "peine_value": 20.0}, {"categorie": 3, "type": "DELIT MAJEUR", "infraction": "ACHAT D'ARMES ILLEGALES", "amende": "25 000$", "amende_value": 25000.0, "supplements": "SAISIE ARME", "peine": "20", "peine_value": 20.0}, {"categorie": 3, "type": "DELIT MAJEUR", "infraction": "DIVULGATION D'INFORMATIONS CONFIDENTIELLES", "amende": "nan", "amende_value": NaN, "supplements": "DEPEND DE L'INFORMATION", "peine": "JUGEMENT", "peine_value": NaN}, {"categorie": 3, "type": "DELIT MAJEUR", "infraction": "DIFFAMATION", "amende": "9 000$", "amende_value": 9000.0, "supplements": "DEDOMMAGEMENT", "peine": "20", "peine_value": 20.0}, {"categorie": 3, "type": "DELIT MAJEUR", "infraction": "EXTORSION / ESCROQUERIE", "amende": "3 500$", "amende_value": 3500.0, "supplements": "SAISIE BIEN + ARME", "peine": "15", "peine_value": 15.0}, {"categorie": 3, "type": "DELIT MAJEUR", "infraction": "FAUX TEMOIGNAGE", "amende": "5000$", "amende_value": 5000.0, "supplements": "DEPEND DU MENSONGE", "peine": "15", "peine_value": 15.0}, {"categorie": 3, "type": "DELIT MAJEUR", "infraction": "INTIMIDATION / CHANTAGE ENVERS MAGISTRAT", "amende": "12 500$", "amende_value": 12500.0, "supplements": "-", "peine": "20", "peine_value": 20.0}, {"categorie": 3, "type": "DELIT MAJEUR", "infraction": "MENACE DE MORT ET / OU INTIMIDATION ENVERS UN REPRESENTANT DE L'ETAT", "amende": "30 000$", "amende_value": 30000.0, "supplements": "-", "peine": "JUGEMENT", "peine_value": NaN}, {"categorie": 3, "type": "DELIT MAJEUR", "infraction": "NON RESPECT D'UNE DECISION DE JUSTICE D'UN CITOYEN", "amende": "10 000$", "amende_value": 10000.0, "supplements": "-", "peine": "15", "peine_value": 15.0}, {"categorie": 3, "type": "DELIT MAJEUR", "infraction": "NON RESPECT D'UNE DECISION EN JUSTICE D'UNE ENTREPRISE", "amende": "20 000$", "amende_value": 20000.0, "supplements": "-", "peine": "15", "peine_value": 15.0}, {"categorie": 3, "type": "DELIT MAJEUR", "infraction": "OBSTRUCTION A LA JUSTICE", "amende": "30 000$", "amende_value": 30000.0, "supplements": "-", "peine": "15", "peine_value": 15.0}, {"categorie": 3, "type": "DELIT MAJEUR", "infraction": "OUTRAGE A MAGISTRAT", "amende": "50 000$", "amende_value": 50000.0, "supplements": "-", "peine": "15", "peine_value": 15.0}, {"categorie": 3, "type": "DELIT MAJEUR", "infraction": "POSSESSION D'ARMES LOURDES ILLEGALES", "amende": "20 000$", "amende_value": 20000.0, "supplements": "SAISIE ARMES", "peine": "30", "peine_value": 30.0}, {"categorie": 3, "type": "DELIT MAJEUR", "infraction": "POSSESSION D'ARMES LEGERES ILLEGALES", "amende": "20 000$", "amende_value": 20000.0, "supplements": "SAISIE ARMES", "peine": "20", "peine_value": 20.0}, {"categorie": 3, "type": "DELIT MAJEUR", "infraction": "FUSILLADE", "amende": "40 000$", "amende_value": 40000.0, "supplements": "SAISIE L'ARME + RETRAIT PPA", "peine": "JUGEMENT", "peine_value": NaN}, {"categorie": 3, "type": "DELIT MAJEUR", "infraction": "PRISE D'OTAGE SUR UN CIVIL", "amende": "10 000$", "amende_value": 10000.0, "supplements": "-", "peine": "10", "peine_value": 10.0}, {"categorie": 3, "type": "DELIT MAJEUR", "infraction": "UTILISATION DE SA FONCTION A DES FINS PERSONNELLES", "amende": "JUGEMENT", "amende_value": NaN, "supplements": "-", "peine": "JUGEMENT", "peine_value": NaN}, {"categorie": 3, "type": "DELIT MAJEUR", "infraction": "INCENDIE CRIMINEL", "amende": "10 000$", "amende_value": 10000.0, "supplements": "SAISIE DES BIENS", "peine": "20", "peine_value": 20.0}, {"categorie": 3, "type": "DELIT MAJEUR", "infraction": "USURPATION D'UNIFORME FONCTION PRIVEE", "amende": "10 000", "amende_value": 10000.0, "supplements": "-", "peine": "20", "peine_value": 20.0}, {"categorie": 3, "type": "DELIT MAJEUR", "infraction": "VOL A MAIN ARMEE", "amende": "10 000$", "amende_value": 10000.0, "supplements": "SAISIE+ RETRAIT PPA + RESTITUTION DU VOL", "peine": "15", "peine_value": 15.0}, {"categorie": 4, "type": "CRIME", "infraction": "VENTE ILLEGALE D'ARMES", "amende": "30 000$", "amende_value": 30000.0, "supplements": "SAISIE  ARMES + SAISIE DE LA MONNAIE D'ECHANGE", "peine": "JUGEMENT", "peine_value": NaN}, {"categorie": 4, "type": "CRIME", "infraction": "HOMICIDE", "amende": "50 000$", "amende_value": 50000.0, "supplements": "RETRAIT PPA", "peine": "JUGEMENT", "peine_value": NaN}, {"categorie": 4, "type": "CRIME", "infraction": "CAVALE", "amende": "45 000$", "amende_value": 45000.0, "supplements": "AVIS DE RECHERCHE INTERPOLE", "peine": "JUGEMENT", "peine_value": NaN}, {"categorie": 4, "type": "CRIME", "infraction": "CORRUPTION", "amende": "JUGEMENT", "amende_value": NaN, "supplements": "-", "peine": "JUGEMENT", "peine_value": NaN}, {"categorie": 4, "type": "CRIME", "infraction": "DETOURNEMENT DE FONDS", "amende": "JUGEMENT", "amende_value": NaN, "supplements": "SAISIE DES FONDS, OU DES BIENS SI IL N'Y EN A PLUS", "peine": "JUGEMENT", "peine_value": NaN}, {"categorie": 4, "type": "CRIME", "infraction": "EVASION / ORGANISATION D'EVASION (PRISON OU CONVOI)", "amende": "JUGEMENT+ AVIS\nDE RECHERCHE", "amende_value": NaN, "supplements": "SAISIE DES BIENS", "peine": "JUGEMENT", "peine_value": NaN}, {"categorie": 4, "type": "CRIME", "infraction": "HOMICIDE SUR AGENT DE L'ETAT", "amende": "JUGEMENT", "amende_value": NaN, "supplements": "SAISIE DES BIENS", "peine": "JUGEMENT", "peine_value": NaN}, {"categorie": 4, "type": "CRIME", "infraction": "TENTATIVE DE MEURTRE", "amende": "30 000$", "amende_value": 30000.0, "supplements": "SAISIE DES BIENS", "peine": "JUGEMENT", "peine_value": NaN}, {"categorie": 4, "type": "CRIME", "infraction": "PRISE D'OTAGE SUR UN REPRESENTANT DE L'ETAT", "amende": "20 000$", "amende_value": 20000.0, "supplements": "POSSIBILITE D'INTERDIR LA SUPRESSION DU CASIER", "peine": "JUGEMENT", "peine_value": NaN}, {"categorie": 4, "type": "CRIME", "infraction": "SEQUESTRATION", "amende": "30 000$", "amende_value": 30000.0, "supplements": "DEDOMMAGEMENT", "peine": "JUGEMENT", "peine_value": NaN}, {"categorie": 4, "type": "CRIME", "infraction": "TERRORISME", "amende": "JUGEMENT", "amende_value": NaN, "supplements": "SAISIE COMPTE + BIENS + PROPRIETES", "peine": "FEDERAL", "peine_value": NaN}, {"categorie": 4, "type": "CRIME", "infraction": "TORTURE", "amende": "50 000$", "amende_value": 50000.0, "supplements": "-", "peine": "JUGEMENT", "peine_value": NaN}, {"categorie": 4, "type": "CRIME", "infraction": "FABRICATION D'ARME ILLEGALE", "amende": "40 000$", "amende_value": 40000.0, "supplements": "SAISIE ARME SI POSSESSION + DESTRUCTION DU LABORATOIRE", "peine": "JUGEMENT", "peine_value": NaN}, {"categorie": 4, "type": "CRIME", "infraction": "BLANCHIMENT", "amende": "nan", "amende_value": NaN, "supplements": "SAISIE ARGENT / AMENDE X2 PAR RAPPORT A L'ARGENT POSSEDE", "peine": "JUGEMENT", "peine_value": NaN}];
+
+const els = {
+  q: document.getElementById('q'),
+  type: document.getElementById('type'),
+  categorie: document.getElementById('categorie'),
+  sort: document.getElementById('sort'),
+  tbody: document.getElementById('tbody'),
+  resetFilters: document.getElementById('resetFilters'),
+  copyLink: document.getElementById('copyLink'),
+  chip: document.getElementById('chip'),
+  count: document.getElementById('count'),
+
+  selectionList: document.getElementById('selectionList'),
+  clearSelection: document.getElementById('clearSelection'),
+  copyReport: document.getElementById('copyReport'),
+  report: document.getElementById('report'),
+
+  selCount: document.getElementById('selCount'),
+  totalAmende: document.getElementById('totalAmende'),
+  totalPeine: document.getElementById('totalPeine'),
+  totalRows: document.getElementById('totalRows'),
+
+  suspect: document.getElementById('suspect'),
+  officer: document.getElementById('officer'),
+  fmtPlain: document.getElementById('fmtPlain'),
+  fmtDiscord: document.getElementById('fmtDiscord'),
+};
+
+let reportFormat = 'plain'; // 'plain' | 'discord'
+
+function uniq(arr) { return Array.from(new Set(arr.filter(v => v !== null && v !== undefined && String(v).trim() !== ''))); }
+function norm(s) { return (s || '').toString().toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, ''); }
+function escapeHtml(str) {
+  return (str ?? '').toString()
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+function moneyValue(row) {
+  if (typeof row.amende_value === 'number') return row.amende_value;
+  const m = String(row.amende || '').match(/\d+/g);
+  if (!m) return 0;
+  return parseInt(m.join(''), 10) || 0;
+}
+function minutesValue(row) {
+  if (typeof row.peine_value === 'number') return row.peine_value;
+  const m = String(row.peine || '').match(/-?\d+/);
+  return m ? (parseInt(m[0], 10) || 0) : 0;
+}
+function formatMoney(v) {
+  try { return new Intl.NumberFormat('fr-FR').format(v) + ' $'; }
+  catch(e) { return String(v) + ' $'; }
+}
+function pad2(n){ return String(n).padStart(2,'0'); }
+function nowFr() {
+  const d = new Date();
+  // keep browser local; for RP servers it's fine
+  return `${pad2(d.getDate())}/${pad2(d.getMonth()+1)}/${d.getFullYear()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+}
+
+function buildSelect(selectEl, values, allLabel) {
+  selectEl.innerHTML = '';
+  const optAll = document.createElement('option');
+  optAll.value = '';
+  optAll.textContent = allLabel;
+  selectEl.appendChild(optAll);
+  values.forEach(v => {
+    const opt = document.createElement('option');
+    opt.value = String(v);
+    opt.textContent = String(v);
+    selectEl.appendChild(opt);
+  });
+}
+
+function getState() { return { q: els.q.value.trim(), type: els.type.value, categorie: els.categorie.value, sort: els.sort.value }; }
+function setState(state) {
+  if (state.q !== undefined) els.q.value = state.q;
+  if (state.type !== undefined) els.type.value = state.type;
+  if (state.categorie !== undefined) els.categorie.value = state.categorie;
+  if (state.sort !== undefined) els.sort.value = state.sort;
+}
+
+function readHash() {
+  const h = new URLSearchParams((location.hash || '').replace('#',''));
+  return { q: h.get('q') || '', type: h.get('type') || '', categorie: h.get('cat') || '', sort: h.get('sort') || 'default' };
+}
+let hashWriteLock = false;
+function writeHash(state) {
+  hashWriteLock = true;
+  const h = new URLSearchParams();
+  if (state.q) h.set('q', state.q);
+  if (state.type) h.set('type', state.type);
+  if (state.categorie) h.set('cat', state.categorie);
+  if (state.sort && state.sort !== 'default') h.set('sort', state.sort);
+  location.hash = h.toString();
+  setTimeout(() => hashWriteLock = false, 50);
+}
+
+// --- Selection ---
+const selection = new Map(); // key: infraction, value: { row, qty }
+function keyOf(row) { return row.infraction; }
+
+function addRow(row, delta=1) {
+  const k = keyOf(row);
+  const curr = selection.get(k);
+  const nextQty = (curr ? curr.qty : 0) + delta;
+  if (nextQty <= 0) selection.delete(k);
+  else selection.set(k, { row, qty: nextQty });
+  refreshSelectionUI();
+  refreshRowHighlights();
+}
+
+function refreshRowHighlights() {
+  const trs = els.tbody.querySelectorAll('tr[data-key]');
+  trs.forEach(tr => tr.classList.toggle('rowSelected', selection.has(tr.getAttribute('data-key'))));
+}
+
+function calcTotals() {
+  let totalA = 0, totalP = 0, totalQ = 0;
+  selection.forEach(({row, qty}) => {
+    totalQ += qty;
+    totalA += moneyValue(row) * qty;
+    totalP += minutesValue(row) * qty;
+  });
+  return { totalA, totalP, totalQ };
+}
+
+function collectSupplements() {
+  const map = new Map(); // supplement => count
+  selection.forEach(({row, qty}) => {
+    const s = (row.supplements || '').trim();
+    if (!s || s === '-') return;
+    // keep it readable: one line can contain multiple info; we'll just count per unique string
+    map.set(s, (map.get(s) || 0) + qty);
+  });
+  return Array.from(map.entries()).sort((a,b)=>a[0].localeCompare(b[0],'fr',{sensitivity:'base'}));
+}
+
+function buildReportText() {
+  const items = Array.from(selection.values())
+    .sort((a,b)=> (a.row.infraction || '').localeCompare(b.row.infraction || '', 'fr', {sensitivity:'base'}));
+
+  const { totalA, totalP } = calcTotals();
+  const supps = collectSupplements();
+
+  const suspect = els.suspect.value.trim();
+  const officer = els.officer.value.trim();
+  const dateStr = nowFr();
+
+  if (reportFormat === 'discord') {
+    const lines = [];
+    lines.push("**📝 Rapport – Code pénal LSPD**");
+    lines.push(`> **Date/Heure :** ${dateStr}`);
+    if (suspect) lines.push(`> **Suspect :** ${suspect}`);
+    if (officer) lines.push(`> **Officier :** ${officer}`);
+    lines.push("");
+    lines.push("**Faits reprochés :**");
+    if (items.length === 0) {
+      lines.push("- _Aucun_");
+    } else {
+      items.forEach(({row, qty}) => lines.push(`- ${row.infraction} **x${qty}**`));
+    }
+    if (supps.length) {
+      lines.push("");
+      lines.push("**Suppléments :**");
+      supps.forEach(([s, c]) => lines.push(`- ${s} **x${c}**`));
+    }
+    lines.push("");
+    lines.push(`**Total amende :** ${formatMoney(totalA)}`);
+    lines.push(`**Total peine :** ${totalP} min`);
+    return lines.join("\n");
+  }
+
+  // plain
+  const lines = [];
+  lines.push("RAPPORT – CODE PÉNAL LSPD");
+  lines.push("────────────────────────");
+  lines.push(`Date/Heure : ${dateStr}`);
+  if (suspect) lines.push(`Suspect   : ${suspect}`);
+  if (officer) lines.push(`Officier  : ${officer}`);
+  lines.push("");
+  lines.push("Faits reprochés :");
+  if (items.length === 0) lines.push("- Aucun");
+  else items.forEach(({row, qty}) => lines.push(`- ${row.infraction} x${qty}`));
+
+  if (supps.length) {
+    lines.push("");
+    lines.push("Suppléments :");
+    supps.forEach(([s, c]) => lines.push(`- ${s} x${c}`));
+  }
+
+  lines.push("");
+  lines.push(`Total Amende : ${formatMoney(totalA)}`);
+  lines.push(`Total Peine  : ${totalP} min`);
+  return lines.join("\n");
+}
+
+function refreshSelectionUI() {
+  const { totalA, totalP, totalQ } = calcTotals();
+
+  els.selCount.textContent = String(totalQ);
+  els.totalAmende.textContent = formatMoney(totalA);
+  els.totalPeine.textContent = String(totalP);
+
+  els.selectionList.innerHTML = '';
+  const items = Array.from(selection.values())
+    .sort((a,b)=> (a.row.infraction || '').localeCompare(b.row.infraction || '', 'fr', {sensitivity:'base'}));
+
+  if (items.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'muted small';
+    empty.textContent = "Aucune infraction sélectionnée. Clique sur une ligne pour l'ajouter.";
+    els.selectionList.appendChild(empty);
+  } else {
+    items.forEach(({row, qty}) => {
+      const div = document.createElement('div');
+      div.className = 'item';
+      const a = moneyValue(row);
+      const p = minutesValue(row);
+      const amendeDisplay = row.amende || formatMoney(a);
+      const peineDisplay = (row.peine && row.peine !== 'nan') ? row.peine : (p + ' min');
+
+      div.innerHTML = `
+        <div class="left">
+          <div class="name">${escapeHtml(row.infraction)}</div>
+          <div class="meta">
+            ${escapeHtml(row.type || '—')} • Cat. ${escapeHtml(row.categorie ?? '—')}
+            • Amende: ${escapeHtml(amendeDisplay)} • Peine: ${escapeHtml(peineDisplay)}
+          </div>
+        </div>
+        <div class="qty">
+          <button class="btn danger" data-act="dec">-</button>
+          <div class="n">${qty}</div>
+          <button class="btn primary" data-act="inc">+</button>
+        </div>
+      `;
+      div.querySelector('[data-act="dec"]').addEventListener('click', () => addRow(row, -1));
+      div.querySelector('[data-act="inc"]').addEventListener('click', () => addRow(row, +1));
+      els.selectionList.appendChild(div);
+    });
+  }
+
+  els.report.value = buildReportText();
+}
+
+async function copyText(txt) {
+  try {
+    await navigator.clipboard.writeText(txt);
+    els.chip.textContent = "Copié ✅";
+    setTimeout(()=>els.chip.textContent = "Données : " + DATA.length + " entrées", 1400);
+  } catch(e) {
+    els.report.focus();
+    els.report.select();
+    document.execCommand('copy');
+    els.chip.textContent = "Copié ✅";
+    setTimeout(()=>els.chip.textContent = "Données : " + DATA.length + " entrées", 1400);
+  }
+}
+
+// --- Filtering + rendering ---
+function applyFilters() {
+  const state = getState();
+  const qn = norm(state.q);
+
+  let rows = DATA.filter(r => {
+    if (state.type && r.type !== state.type) return false;
+    if (state.categorie && String(r.categorie) !== String(state.categorie)) return false;
+    if (qn) {
+      const hay = norm((r.infraction || '') + ' ' + (r.supplements || '') + ' ' + (r.type || '') + ' ' + (r.categorie ?? ''));
+      if (!hay.includes(qn)) return false;
+    }
+    return true;
+  });
+
+  const sort = state.sort;
+  const num = v => (typeof v === 'number' ? v : -Infinity);
+  if (sort === 'amende_desc') rows.sort((a,b) => num(b.amende_value) - num(a.amende_value));
+  if (sort === 'amende_asc') rows.sort((a,b) => num(a.amende_value) - num(b.amende_value));
+  if (sort === 'peine_desc') rows.sort((a,b) => num(b.peine_value) - num(a.peine_value));
+  if (sort === 'peine_asc') rows.sort((a,b) => num(a.peine_value) - num(b.peine_value));
+  if (sort === 'az') rows.sort((a,b) => (a.infraction || '').localeCompare(b.infraction || '', 'fr', {sensitivity:'base'}));
+
+  render(rows);
+  writeHash(state);
+}
+
+function render(rows) {
+  els.tbody.innerHTML = '';
+  const frag = document.createDocumentFragment();
+
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    const k = keyOf(r);
+    tr.setAttribute('data-key', k);
+    tr.classList.add('clickable');
+
+    const amendeDisplay = r.amende || (typeof r.amende_value === 'number' ? formatMoney(r.amende_value) : '—');
+    const supp = (r.supplements && r.supplements !== '-') ? r.supplements : '-';
+    const peineDisplay = (r.peine && r.peine !== 'nan') ? r.peine : (minutesValue(r) + ' min');
+
+    tr.innerHTML = `
+      <td><span class="badge cat">Cat. ${escapeHtml(r.categorie ?? '—')}</span></td>
+      <td><span class="badge type">${escapeHtml(r.type || '—')}</span></td>
+      <td>
+        <div style="font-weight:950; line-height:1.25;">${escapeHtml(r.infraction || '—')}</div>
+        ${supp !== '-' ? `<div class="muted small" style="margin-top:6px;">Suppléments : ${escapeHtml(supp)}</div>` : ``}
+      </td>
+      <td class="money clickable" data-role="fine">${escapeHtml(amendeDisplay)}</td>
+      <td>${escapeHtml(supp)}</td>
+      <td>${escapeHtml(peineDisplay)}</td>
+    `;
+
+    tr.addEventListener('click', (ev) => {
+      const delta = ev.shiftKey ? -1 : +1;
+      addRow(r, delta);
+      ev.preventDefault();
+    });
+
+    frag.appendChild(tr);
+  });
+
+  els.tbody.appendChild(frag);
+  els.count.textContent = `${rows.length} résultat(s)`;
+  refreshRowHighlights();
+}
+
+function init() {
+  const types = uniq(DATA.map(r => r.type)).sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'}));
+  const cats = uniq(DATA.map(r => r.categorie)).sort((a,b)=>Number(a)-Number(b));
+
+  buildSelect(els.type, types, 'Tous les types');
+  buildSelect(els.categorie, cats, 'Toutes les catégories');
+  els.totalRows.textContent = String(DATA.length);
+
+  setState(readHash());
+
+  els.q.addEventListener('input', applyFilters);
+  els.type.addEventListener('change', applyFilters);
+  els.categorie.addEventListener('change', applyFilters);
+  els.sort.addEventListener('change', applyFilters);
+
+  els.resetFilters.addEventListener('click', () => {
+    setState({q:'', type:'', categorie:'', sort:'default'});
+    applyFilters();
+  });
+
+  els.copyLink.addEventListener('click', () => copyText(location.href));
+
+  els.clearSelection.addEventListener('click', () => {
+    selection.clear();
+    refreshSelectionUI();
+    refreshRowHighlights();
+  });
+
+  els.copyReport.addEventListener('click', () => copyText(els.report.value));
+
+  // Update report live when header inputs change
+  els.suspect.addEventListener('input', () => { els.report.value = buildReportText(); });
+  els.officer.addEventListener('input', () => { els.report.value = buildReportText(); });
+
+  // Format toggles
+  function setFmt(fmt) {
+    reportFormat = fmt;
+    els.fmtPlain.classList.toggle('primary', fmt === 'plain');
+    els.fmtDiscord.classList.toggle('primary', fmt === 'discord');
+    els.report.value = buildReportText();
+  }
+  els.fmtPlain.addEventListener('click', () => setFmt('plain'));
+  els.fmtDiscord.addEventListener('click', () => setFmt('discord'));
+  setFmt('plain');
+
+  window.addEventListener('hashchange', () => {
+    if (hashWriteLock) return;
+    setState(readHash());
+    applyFilters();
+  });
+
+  els.chip.textContent = "Données : " + DATA.length + " entrées";
+  refreshSelectionUI();
+  applyFilters();
+}
+
+init();
+</script>
+</body>
+</html>
