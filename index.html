@@ -686,5 +686,127 @@ function init() {
 
 init();
 </script>
+
+<!-- ================= RP REPORT CLEAN SECTION ================= -->
+<div class="card" style="margin-top:25px;">
+  <div class="body">
+    <h2>📝 Rapport d’Incident RP</h2>
+
+    <label>👮 Agents présents</label>
+    <input id="rp_agents" placeholder="Mat. 128 Fritix & Mat. 241 Lopez"/>
+
+    <label>📍 Adresse</label>
+    <input id="rp_address" placeholder="Mirror Park Blvd"/>
+
+    <label>👤 Nom suspect</label>
+    <input id="rp_suspect" placeholder="John Doe"/>
+
+    <label>📝 Rédigez entièrement votre rapport</label>
+    <textarea id="rp_story" style="min-height:200px;" 
+    placeholder="Écrivez ici tout le déroulement librement..."></textarea>
+
+    <label>👮 Agent rédacteur</label>
+    <input id="rp_writer" placeholder="Mat. 128 Fritix"/>
+
+    <label>📸 Image 1 (URL)</label>
+    <input id="rp_img1" placeholder="https://..."/>
+
+    <label>📸 Image 2 (URL)</label>
+    <input id="rp_img2" placeholder="https://..."/>
+
+    <br><br>
+    <button onclick="generateRP()">🧾 Générer</button>
+    <button onclick="copyRP()">📋 Copier</button>
+    <button onclick="sendRP()">📤 Envoyer Discord</button>
+
+    <br><br>
+    <textarea id="rp_output" style="min-height:300px;" readonly></textarea>
+  </div>
+</div>
+
+<script>
+
+function getVal(id){
+  var el = document.getElementById(id);
+  return el ? el.value : "";
+}
+
+function nowDate(){
+  var d = new Date();
+  return d.toLocaleDateString('fr-FR') + " à " +
+         d.getHours().toString().padStart(2,'0') + "h" +
+         d.getMinutes().toString().padStart(2,'0');
+}
+
+function generateRP(){
+
+  var agents = getVal("rp_agents");
+  var address = getVal("rp_address");
+  var suspect = getVal("rp_suspect");
+  var story = getVal("rp_story");
+  var writer = getVal("rp_writer");
+
+  var accusations = [];
+  if(typeof selection !== "undefined" && selection){
+      selection.forEach(function(item){
+          accusations.push("– " + item.row.infraction + " x" + item.qty);
+      });
+  }
+
+  var totalAmendeEl = document.getElementById("totalAmende");
+  var totalPeineEl = document.getElementById("totalPeine");
+
+  var totalAmende = totalAmendeEl ? totalAmendeEl.textContent : "0 $";
+  var totalPeine = totalPeineEl ? totalPeineEl.textContent : "0";
+
+  var report =
+"Rapport d’Incident\n\n" +
+"Le " + nowDate() + ", l’équipe composée de " + agents +
+" est intervenue à l’adresse suivante : " + address + ".\n\n" +
+story + "\n\n" +
+"Les chefs d’accusation retenus sont :\n" +
+accusations.join("\n") + "\n\n" +
+"Peine prononcée : " + totalPeine + " minutes.\n" +
+"Amende : " + totalAmende + ".\n\n" +
+"Rapport rédigé par " + writer +
+" le " + new Date().toLocaleDateString('fr-FR') + ".";
+
+  document.getElementById("rp_output").value = report;
+}
+
+function copyRP(){
+  generateRP();
+  var textarea = document.getElementById("rp_output");
+  textarea.select();
+  document.execCommand("copy");
+}
+
+async function sendRP(){
+
+  generateRP();
+  var report = document.getElementById("rp_output").value;
+  var img1 = getVal("rp_img1");
+  var img2 = getVal("rp_img2");
+
+  var embeds = [{
+      title: "📝 Rapport d’Incident - LSPD",
+      description: report,
+      color: 3447003
+  }];
+
+  if(img1){ embeds.push({ image: { url: img1 }}); }
+  if(img2){ embeds.push({ image: { url: img2 }}); }
+
+  await fetch("https://discord.com/api/webhooks/1472728568860774695/US-d5yD6Emhn9i0XftlQ5qMAyzVlc5asRaONkmuk-vOYQKvXYICESSgU8T3xecbxL3P4",{
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ embeds: embeds })
+  });
+
+  alert("Rapport envoyé !");
+}
+
+</script>
+
 </body>
 </html>
