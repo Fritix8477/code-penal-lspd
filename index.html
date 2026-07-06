@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Code penal LSPD - Fritix</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <script src="assets/js/data.js" defer></script>
+  <script src="assets/js/app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Los Santos Police Department</p>
+        <h1>Code penal LSPD</h1>
+        <p class="subtitle">Recherche, calcul des sanctions et generation de rapport RP depuis une interface unique.</p>
+      </div>
+      <div class="status-pill" id="datasetStatus">Chargement</div>
+    </header>
+
+    <main class="layout">
+      <section class="panel catalog-panel" aria-labelledby="catalogTitle">
+        <div class="panel-head">
+          <div>
+            <h2 id="catalogTitle">Infractions</h2>
+            <p id="resultCount">0 entree</p>
+          </div>
+          <button class="ghost-btn" type="button" id="resetFilters">Reinitialiser</button>
+        </div>
+
+        <div class="filters" aria-label="Filtres du code penal">
+          <label class="field field-search">
+            <span>Recherche</span>
+            <input id="searchInput" type="search" placeholder="Ex: vitesse, arme, braquage..." autocomplete="off">
+          </label>
+          <label class="field">
+            <span>Type</span>
+            <select id="typeFilter"></select>
+          </label>
+          <label class="field">
+            <span>Categorie</span>
+            <select id="categoryFilter"></select>
+          </label>
+          <label class="field">
+            <span>Tri</span>
+            <select id="sortFilter">
+              <option value="default">Ordre du code</option>
+              <option value="name">Infraction A-Z</option>
+              <option value="fineDesc">Amende decroissante</option>
+              <option value="fineAsc">Amende croissante</option>
+              <option value="jailDesc">Peine decroissante</option>
+              <option value="jailAsc">Peine croissante</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="quick-tabs" id="quickTabs" aria-label="Categories rapides"></div>
+
+        <div class="table-frame">
+          <table>
+            <thead>
+              <tr>
+                <th>Categorie</th>
+                <th>Type</th>
+                <th>Infraction</th>
+                <th>Amende</th>
+                <th>Peine</th>
+                <th>Supplements</th>
+              </tr>
+            </thead>
+            <tbody id="penalTable"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <aside class="side-stack">
+        <section class="panel totals-panel" aria-labelledby="totalsTitle">
+          <div class="panel-head compact">
+            <div>
+              <h2 id="totalsTitle">Dossier</h2>
+              <p id="selectionMeta">Aucune infraction selectionnee</p>
+            </div>
+            <button class="danger-btn" type="button" id="clearSelection">Vider</button>
+          </div>
+
+          <div class="metrics">
+            <div><span>Infractions</span><strong id="selectedCount">0</strong></div>
+            <div><span>Amende</span><strong id="totalFine">0 $</strong></div>
+            <div><span>Peine</span><strong><span id="totalJail">0</span> min</strong></div>
+          </div>
+
+          <div class="selection-list" id="selectionList"></div>
+        </section>
+
+      </aside>
+
+      <section class="panel report-panel priority-panel" aria-labelledby="reportTitle">
+        <div class="panel-head">
+          <div>
+            <p class="section-kicker">Rapport d'incident</p>
+            <h2 id="reportTitle">Redaction RP</h2>
+            <p>Remplis les faits, selectionne les infractions, puis copie ou envoie le rapport.</p>
+          </div>
+          <div class="report-actions report-actions-top">
+            <button class="primary-btn" type="button" id="copyReport">Copier le rapport</button>
+            <button class="ghost-btn" type="button" id="downloadReport">Telecharger .txt</button>
+            <button class="primary-btn" type="button" id="sendDiscord">Envoyer Discord</button>
+          </div>
+        </div>
+
+        <div class="form-grid report-fields">
+          <label class="field"><span>Agents presents</span><input id="rpAgents" placeholder="Mat. 128 Fritix, Mat. 241 Lopez"></label>
+          <label class="field"><span>Adresse</span><input id="rpAddress" placeholder="Mission Row, Mirror Park..."></label>
+          <label class="field"><span>Suspect</span><input id="rpSuspect" placeholder="John Doe (ID 24)"></label>
+          <label class="field"><span>Agent redacteur</span><input id="rpWriter" placeholder="Mat. 128 Fritix"></label>
+        </div>
+
+        <div class="report-workspace">
+          <label class="field"><span>Deroulement complet</span><textarea id="rpStory" class="story-input" placeholder="Decrivez les faits, l'intervention, les preuves, la fouille et les decisions prises..."></textarea></label>
+          <label class="field"><span>Rapport genere</span><textarea id="reportOutput" readonly></textarea></label>
+        </div>
+        <p class="notice" id="toast" role="status" aria-live="polite"></p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
